@@ -17,7 +17,7 @@
 
 # Requirements
 * Python 3.7
-* Pytorch
+* PyTorch
 * PyTorch Geometric
 * numpy
 * scipy
