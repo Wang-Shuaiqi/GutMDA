@@ -76,16 +76,13 @@ class Sizes(object):
         self.drug_size = drug_size
         self.mic_size = mic_size
         self.dis_size = dis_size
-        self.F1 = 128
-        self.F2 = 32
-        self.F3 = 32
+        self.channel = 64
         self.k_fold = 1
         self.epoch = 10
         self.learn_rate = 0.001
         self.seed = 1
-        self.h1_gamma = 2 ** (-5)
-        self.h2_gamma = 2 ** (-3)
-        self.h3_gamma = 2 ** (-3)
+        self.h_gamma = 2 ** (-3)
+
 
         self.lambda1 = 2 ** (-3)
-        self.lambda2 = 2 ** (-4)
+        self.lambda2 = 2 ** (-3)

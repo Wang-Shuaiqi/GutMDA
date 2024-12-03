@@ -129,7 +129,7 @@ def cross_validation_experiment(drug_mic_matrix, drug_dis_matrix, mic_dis_matrix
 
 
 if __name__ == "__main__":
-    data_path = '../data/associations/'
+    data_path = '../training_data/'
     data_set = 'MASI/'
     # data_set = 'MDAD/'
     drug_sim = np.loadtxt(data_path + data_set + 'drug_similarity.txt', delimiter=' ')

@@ -12,13 +12,9 @@ class Model(nn.Module):
         self.drug_size = sizes.drug_size
         self.mic_size = sizes.mic_size
         self.dis_size = sizes.dis_size
-        self.F1 = sizes.F1
-        self.F2 = sizes.F2
-        self.F3 = sizes.F3
+        self.channel = sizes.channel
         self.seed = sizes.seed
-        self.h1_gamma = sizes.h1_gamma
-        self.h2_gamma = sizes.h2_gamma
-        self.h3_gamma = sizes.h3_gamma
+        self.h_gamma = sizes.h_gamma
 
         self.lambda1 = sizes.lambda1
         self.lambda2 = sizes.lambda2
@@ -30,11 +26,11 @@ class Model(nn.Module):
         self.drug_sim = t.DoubleTensor(drug_sim)
         self.mic_sim = t.DoubleTensor(mic_sim)
 
-        self.gcn_1 = conv.GCNConv(self.drug_size + self.mic_size, self.F1)
-        self.gcn_2 = conv.GCNConv(self.F1, self.F2)
-        self.gcn_3 = conv.GCNConv(self.F2, self.F3)
-        self.gcn_dd = conv.GCNConv(self.drug_size + self.dis_size, self.F2)
-        self.gcn_md = conv.GCNConv(self.mic_size + self.dis_size, self.F2)
+        self.gcn_1 = conv.GCNConv(self.drug_size + self.mic_size, self.channel)
+        # self.gcn_2 = conv.GCNConv(self.channel, self.channel)
+        # self.gcn_3 = conv.GCNConv(self.channel, self.channel)
+        self.gcn_dd = conv.GCNConv(self.drug_size + self.dis_size, self.channel)
+        self.gcn_md = conv.GCNConv(self.mic_size + self.dis_size, self.channel)
 
 
         self.alpha1 = t.randn(self.drug_size, self.mic_size).double()
@@ -56,22 +52,22 @@ class Model(nn.Module):
         mic_kernels = []
 
         H1 = t.relu(self.gcn_1(x, adj['edge_index'], adj['data'][adj['edge_index'][0], adj['edge_index'][1]]))
-        drugs_kernels.append(t.DoubleTensor(getGipKernel(H1[:self.drug_size].clone(), 0, self.h1_gamma, True).double()))
-        mic_kernels.append(t.DoubleTensor(getGipKernel(H1[self.drug_size:].clone(), 0, self.h1_gamma, True).double()))
+        drugs_kernels.append(t.DoubleTensor(getGipKernel(H1[:self.drug_size].clone(), 0, self.h_gamma, True).double()))
+        mic_kernels.append(t.DoubleTensor(getGipKernel(H1[self.drug_size:].clone(), 0, self.h_gamma, True).double()))
 
         # H2 = t.relu(self.gcn_2(H1, adj['edge_index'], adj['data'][adj['edge_index'][0], adj['edge_index'][1]]))
-        # drugs_kernels.append(t.DoubleTensor(getGipKernel(H2[:self.drug_size].clone(), 0, self.h1_gamma, True).double()))
-        # mic_kernels.append(t.DoubleTensor(getGipKernel(H2[self.drug_size:].clone(), 0, self.h1_gamma, True).double()))
+        # drugs_kernels.append(t.DoubleTensor(getGipKernel(H2[:self.drug_size].clone(), 0, self.h_gamma, True).double()))
+        # mic_kernels.append(t.DoubleTensor(getGipKernel(H2[self.drug_size:].clone(), 0, self.h_gamma, True).double()))
 
         # H3 = t.relu(self.gcn_3(H2, adj['edge_index'], adj['data'][adj['edge_index'][0], adj['edge_index'][1]]))
-        # drugs_kernels.append(t.DoubleTensor(getGipKernel(H3[:self.drug_size].clone(), 0, self.h3_gamma, True).double()))
-        # mic_kernels.append(t.DoubleTensor(getGipKernel(H3[self.drug_size:].clone(), 0, self.h3_gamma, True).double()))
+        # drugs_kernels.append(t.DoubleTensor(getGipKernel(H3[:self.drug_size].clone(), 0, self.h_gamma, True).double()))
+        # mic_kernels.append(t.DoubleTensor(getGipKernel(H3[self.drug_size:].clone(), 0, self.h_gamma, True).double()))
 
         Hdd = t.relu(self.gcn_dd(x_drug_dis, adj['edge_index_drug_dis'], adj['data_drug_dis'][adj['edge_index_drug_dis'][0], adj['edge_index_drug_dis'][1]]))
-        drugs_kernels.append(t.DoubleTensor(getGipKernel(Hdd[:self.drug_size].clone(), 0, self.h1_gamma, True).double()))
+        drugs_kernels.append(t.DoubleTensor(getGipKernel(Hdd[:self.drug_size].clone(), 0, self.h_gamma, True).double()))
 
         Hmd = t.relu(self.gcn_md(x_mic_dis, adj['edge_index_mic_dis'], adj['data_mic_dis'][adj['edge_index_mic_dis'][0], adj['edge_index_mic_dis'][1]]))
-        mic_kernels.append(t.DoubleTensor(getGipKernel(Hmd[:self.mic_size].clone(), 0, self.h1_gamma, True).double()))
+        mic_kernels.append(t.DoubleTensor(getGipKernel(Hmd[:self.mic_size].clone(), 0, self.h_gamma, True).double()))
 
 
         # drugs_kernels.append(self.drug_sim)
